@@ -28,7 +28,7 @@ form_el.addEventListener("submit", function(evt) {
 });
 
 function getReistijden(fromStation, toStation) {
-getJSON('http://127.0.0.1:5000/ns/' + fromStation + '/' + toStation ,
+getJSON('http://'+ window.location.host + '/ns/' + fromStation + '/' + toStation ,
 function(err, data) {
   if (err !== null) {
     alert('Something went wrong: ' + err);
@@ -69,6 +69,7 @@ function(err, data) {
 
 
 var getJSON = function(url, callback) {
+    console.log(url);
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.responseType = 'json';
