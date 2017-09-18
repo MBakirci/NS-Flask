@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NS lite</title>
+</head>
+<body>
+
+<form id="nsForm">
+Van: <input type="text" name="from" id="from"><br>
+Naar: <input type="text" name="to" id="to"><br>
+<input type="submit" value="Submit">
+</form>
+
+REISTIJDEN:
+<ul id="myUL">
+</ul>
+
+</body>
+<script>
+var from = document.getElementById("from");
+var to = document.getElementById("to");
+var form_el = document.getElementById("nsForm");
+
+form_el.addEventListener("submit", function(evt) {
+    evt.preventDefault();
+    getReistijden(from.value, to.value);
+});
+
+function getReistijden(fromStation, toStation) {
+getJSON('http://127.0.0.1:5000/ns/' + fromStation + '/' + toStation ,
+function(err, data) {
+  if (err !== null) {
+    alert('Something went wrong: ' + err);
+  } else {
+    var myList = document.getElementById('myUL');
+    myList.innerHTML = '';
+    var reismogelijkheden = data.ReisMogelijkheid;
+    for(var i=0; i<reismogelijkheden.length; i++){
+        var reis = reismogelijkheden[i];
+
+        //Reistype
+        var reisType = reis.ReisDeel.VervoerType;
+
+        //Vertrektijd
+        var d = new Date(reis.GeplandeVertrekTijd),
+        h = (d.getHours()<10?'0':'') + d.getHours(),
+        m = (d.getMinutes()<10?'0':'') + d.getMinutes();
+        var tijd = h + ":" + m;
+
+        //Status
+        var status = reis.Status;
+
+        //Vertraging?? :)
+        var vertraging = (reis.VertrekVertraging != undefined) ? reis.VertrekVertraging : '';
+
+
+        var text = reisType + " - " + tijd + " - " + status  + vertraging;
+
+
+        var li = document.createElement("li");
+        var t = document.createTextNode(text);
+        li.appendChild(t);
+        myList.appendChild(li);
+    }
+  }
+});
+}
+
+
+var getJSON = function(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'json';
+    xhr.onload = function() {
+      var status = xhr.status;
+      if (status === 200) {
+        callback(null, xhr.response);
+      } else {
+        callback(status, xhr.response);
+      }
+    };
+    xhr.send();
+};
+
+</script>
+
+
+</html>

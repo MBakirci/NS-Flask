@@ -1,7 +1,7 @@
 # project/__init__.py
 
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, current_app
 from flask_cors import CORS
 
 from ns.ns_view import ns_blueprint
@@ -18,4 +18,9 @@ def create_app():
 
     # register blueprints
     app.register_blueprint(ns_blueprint)
+
+    @app.route('/')
+    def index():
+        return current_app.send_static_file('index.html')
+
     return app
