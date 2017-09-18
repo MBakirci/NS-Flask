@@ -28,7 +28,7 @@ form_el.addEventListener("submit", function(evt) {
 });
 
 function getReistijden(fromStation, toStation) {
-getJSON('http://'+ window.location.host + '/ns/' + fromStation + '/' + toStation ,
+getJSON('//'+ window.location.host + '/ns/' + fromStation + '/' + toStation ,
 function(err, data) {
   if (err !== null) {
     alert('Something went wrong: ' + err);
