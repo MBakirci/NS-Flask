@@ -43,7 +43,8 @@ function(err, data) {
         var reisType = reis.ReisDeel.VervoerType;
 
         //Vertrektijd
-        var d = new Date(reis.GeplandeVertrekTijd),
+        var a = reis.GeplandeVertrekTijd.split(/[^0-9]/);
+        var d = new Date (a[0],a[1]-1,a[2],a[3],a[4],a[5]);
         h = (d.getHours()<10?'0':'') + d.getHours(),
         m = (d.getMinutes()<10?'0':'') + d.getMinutes();
         var tijd = h + ":" + m;
