@@ -8,6 +8,9 @@
     label{margin-bottom:1em;display:block}
     input[type=text]{padding:6px}
     #myUL{margin-top:1em}
+    .reis-list:nth-child(odd) {
+        background: #e6e6e6;
+    }
     </style>
 </head>
 <body>
@@ -45,29 +48,41 @@ function(err, data) {
     for(var i=0; i<reismogelijkheden.length; i++){
         var reis = reismogelijkheden[i];
 
+        var li = document.createElement("li");
+        li.className += "reis-list";
+
         //Reistype
-        var reisType = reis.ReisDeel.VervoerType;
+        var aantalOverstappen = reis.ReisDeel.length;
 
         //Vertrektijd
-        var a = reis.GeplandeVertrekTijd.split(/[^0-9]/);
-        var d = new Date (a[0],a[1]-1,a[2],a[3],a[4],a[5]);
-        h = (d.getHours()<10?'0':'') + d.getHours(),
-        m = (d.getMinutes()<10?'0':'') + d.getMinutes();
-        var tijd = h + ":" + m;
-
-        //Status
-        var status = reis.Status;
-
-        //Vertraging?? :)
-        var vertraging = (reis.VertrekVertraging != undefined) ? reis.VertrekVertraging : '';
+        var vertrektijd = formatTijd(reis.GeplandeVertrekTijd);
 
 
-        var text = reisType + " - " + tijd + " - " + status  + vertraging;
+        //AankomstTijd
+        var aankomstTijd = formatTijd(reis.GeplandeAankomstTijd);
 
 
-        var li = document.createElement("li");
-        var t = document.createTextNode(text);
-        li.appendChild(t);
+        var text = reis.AantalOverstappen + 'x Overstappen' + ' ' + vertrektijd + ' --> ' + aankomstTijd;
+        li.appendChild(document.createTextNode(text));
+
+        var ul = document.createElement("ul");
+
+        if(aantalOverstappen > 0) {
+            for(var j = 0; j<aantalOverstappen; j++) {
+                var liOverstap = document.createElement("li");
+                var t = document.createTextNode(overstapReis(reis.ReisDeel[j]));
+                liOverstap.appendChild(t);
+                ul.appendChild(liOverstap);
+                li.appendChild(ul);
+            }
+        } else {
+            var reisType = reis.ReisDeel.VervoerType;
+            var liReisInfo = document.createElement("li");
+            var t = document.createTextNode(directeReis(reis, reisType));
+            liReisInfo.appendChild(t);
+            ul.appendChild(liReisInfo);
+            li.appendChild(ul);
+        }
         myList.appendChild(li);
     }
   }
@@ -90,6 +105,49 @@ var getJSON = function(url, callback) {
     };
     xhr.send();
 };
+
+var directeReis = function(reis, reisType) {
+        //Vertrektijd
+        var tijd = formatTijd(reis.GeplandeVertrekTijd);
+
+        //Status
+        var status = reis.Status;
+
+        //Vertraging?? :)
+        var vertraging = (reis.VertrekVertraging != undefined) ? reis.VertrekVertraging : '';
+
+
+        var text = reisType + " - " + tijd + " - " + status  + vertraging;
+        return text;
+}
+
+var overstapReis = function(reis) {
+        //Opstap station
+        var station = reis.ReisStop[0].Naam;
+
+        //Vertrektijd
+        var tijd = formatTijd(reis.ReisStop[0].Tijd);
+
+        //Status
+        var status = reis.Status;
+
+        //Vertraging?? :)
+        var vertraging = (reis.VertrekVertraging != undefined) ? reis.VertrekVertraging : '';
+
+        //VervoerType
+        var reisType = reis.VervoerType;
+
+        return station + " - " + reisType + " - " + tijd + " - " + status  + vertraging ;
+}
+
+var formatTijd = function(tijd) {
+        //Vertrektijd
+        var a = tijd.split(/[^0-9]/);
+        var d = new Date (a[0],a[1]-1,a[2],a[3],a[4],a[5]);
+        h = (d.getHours()<10?'0':'') + d.getHours(),
+        m = (d.getMinutes()<10?'0':'') + d.getMinutes();
+        return h + ":" + m;
+}
 
 </script>
 
